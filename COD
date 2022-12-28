@@ -1,0 +1,57 @@
+%env KERAS_BACKEND=tensorflow
+
+%matplotlib inline
+
+from keras.datasets import mnist
+
+model = Sequential()
+
+model.add(Conv2D(4, (5, 5), padding='same', input_shape=(28, 28, 1)))
+model.add(Activation('relu'))
+
+model.add(MaxPool2D(pool_size=(2,2)))
+
+model.add(Conv2D(8, (5, 5), padding='same'))
+model.add(Activation('relu'))
+
+model.add(MaxPool2D(pool_size=(2,2)))
+
+model.add(Conv2D(16, (5, 5), padding='same'))
+model.add(Activation('relu'))
+
+model.add(MaxPool2D(pool_size=(2,2)))
+
+model.add(Flatten())
+model.add(Dense(9))
+model.add(Activation('relu'))
+
+model.add(Dense(10))
+
+
+model.add(Activation('softmax'))
+
+model.compile(loss='mse', optimizer=SGD(lr=0.07), metrics=['accuracy'])
+
+model.summary()
+
+model.fit(x_train, y_train, batch_size=100, epochs=10)
+
+score = model.evaluate(x_test, y_test)
+
+print(f'測試資料的 loss: {score[0]:.5f}')
+print(f'測試資料的正確率: {score[1]}')
+
+from keras.models import load_model
+
+del model
+model = load_model('myCNNmodel.h5')
+predicted = np.argmax(model.predict(x_test),axis=1)
+pick = np.random.randint(1,9999, 5)
+
+for i in range(5):
+    plt.subplot(1,5,i+1)
+    plt.imshow(x_test[pick[i]].reshape(28,28), cmap='Greys')
+    plt.title(predicted[pick[i]])
+    
+    
+    plt.axis("off")
